@@ -6,7 +6,7 @@ const port = 3000;
 // Variables de configuración
 const USERNAME = process.env.AUTH_USERNAME || 'admin';
 const PASSWORD = process.env.AUTH_PASSWORD || 'password123';
-const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY || '6d63b30d07cd19e252baf2dfafad9d5880440d6e9889a8a4497f3a08aef6d15c';
+const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY || '';
 
 app.use(bodyParser.json({ limit: '10mb' }));
 const model = "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo";
