@@ -2,14 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
-
+require('dotenv').config();
+console.log(process.env.TOGETHER)
 // Variables de configuración
-const USERNAME = process.env.AUTH_USERNAME || 'admin';
-const PASSWORD = process.env.AUTH_PASSWORD || 'password123';
-const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY || '';
+const USERNAME = process.env.AUTH_USERNAME || '';
+const PASSWORD = process.env.AUTH_PASSWORD || '';
+const TOGETHER_API_KEY = process.env.TOGETHER|| '';
 
 app.use(bodyParser.json({ limit: '10mb' }));
-const model = "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo";
+const model = process.env.MODEL_VISION1;
 
 // Middleware de autenticación básica
 const authenticate = (req, res, next) => {
