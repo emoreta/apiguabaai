@@ -6,7 +6,13 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
   dialect: 'mysql',
-  logging: false // Desactiva el logging de SQL en la consola
+  logging: false, // Desactiva el logging de SQL en la consola
+  pool: {
+    max: 5,           // Número máximo de conexiones
+    min: 0,           // Número mínimo de conexiones
+    acquire: 30000,   // Tiempo máximo para intentar conectarse (30s)
+    idle: 10000       // Tiempo antes de cerrar conexión inactiva (10s)
+  }
 });
 
 // Verificar conexión
