@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const { sequelize, Document } = require('./db');
+const axios = require('axios');
 const port = 3000;
 require('dotenv').config();
 console.log(process.env.TOGETHER)
@@ -106,6 +108,63 @@ app.post('/extract-info', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Error al procesar la imagen.', details: error.message });
   }
 });
+//nuevo api para insertar a base de datos
+app.post('/add-document', authenticate, async (req, res) => {
+  const {
+    name,
+    extension,
+    document_id,
+    author,
+    pages,
+    description,
+    name_json,
+    upload_date,
+    created_date,
+    isActive,
+    userId,url_json,json_text
+  } = req.body;
+
+  try {
+    const newDocument = await Document.create({
+      name,
+      extension,
+      document_id,
+      author,
+      pages,
+      description,
+      name_json,
+      upload_date,
+      created_date,
+      isActive: isActive ? 1 : 0,
+      userId,url_json
+    });
+
+    // Ahora, llamamos a la API externa para guardar el JSON
+    const response = await axios.post('https://upload.guabastudio.com/save-json', {
+      jsonString: json_text,  // Aquí pasamos el json_text como parte del cuerpo
+      fileName: name_json,    // Usamos el nombre del archivo JSON
+      pathFile: 'json_files'  // El directorio de destino, por ejemplo
+    });
+
+    // Si la respuesta de la API externa es exitosa, respondemos con éxito
+    if (response.status === 200) {
+      res.status(201).json({
+        message: 'Documento insertado con éxito y JSON guardado',
+        document: newDocument,
+        externalApiResponse: response.data  // Aquí puedes incluir los datos que devuelve la API externa
+      });
+    } else {
+      res.status(500).json({
+        error: 'Error al guardar el JSON en la API externa',
+        details: response.data
+      });
+    }
+  } catch (error) {
+    console.error('Error al insertar el documento:', error);
+    res.status(500).json({ error: 'Error al insertar el documento.', details: error.message });
+  }
+});
+//----------------------------------------------------------
 
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
