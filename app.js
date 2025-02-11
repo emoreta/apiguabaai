@@ -13,11 +13,12 @@ const PASSWORD = process.env.AUTH_PASSWORD || '';
 const TOGETHER_API_KEY = process.env.TOGETHER|| '';
 
 // Configura CORS para permitir el origen localhost:3000
-app.use(cors({
+/*app.use(cors({
   origin: 'http://localhost:3000',  // Permite solo este origen
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+}));*/
+app.use(cors());
 
 app.use(bodyParser.json({ limit: '10mb' }));
 const model = process.env.MODEL_VISION1;
