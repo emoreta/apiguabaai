@@ -22,10 +22,10 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log(process.env.DB_HOST, process.env.DB_NAME);
+    console.log(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS,process.env.DB_HOST,process.env.DB_PORT);
     console.log('Conexión establecida con éxito.');
   } catch (error) {
-    console.log(process.env.DB_HOST, process.env.DB_NAME);
+    console.log(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS,process.env.DB_HOST,process.env.DB_PORT);
     console.error('Error al conectar con la base de datos:', error);
   }
 })();
