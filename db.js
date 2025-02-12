@@ -13,7 +13,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   pool: {
     max: 5,
     min: 0,
-    acquire: 60000,  // Tiempo máximo para intentar conectar
+    acquire: 120000,  // Tiempo máximo para intentar conectar
     idle: 10000
   }
 });
