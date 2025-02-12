@@ -8,7 +8,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   dialect: 'mysql',
   logging: false, // Desactiva el logging de SQL en la consola
   dialectOptions: {
-    connectTimeout: 60000,  // Timeout de 60 segundos
+    connectTimeout: 120000,  // Timeout de 60 segundos
   },
   pool: {
     max: 5,
