@@ -2,9 +2,9 @@ const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
 
 // Configuración de la conexión
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
+const sequelize = new Sequelize(process.env.MYSQLDATABASE, process.env.MYSQLUSER, process.env.MYSQLPASSWORD, {
+  host: process.env.MYSQLHOST,
+  port: process.env.MYSQLPORT || 3306,
   dialect: 'mysql',
   logging: false, // Desactiva el logging de SQL en la consola
   dialectOptions: {
