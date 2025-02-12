@@ -7,11 +7,14 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   port: process.env.DB_PORT || 3306,
   dialect: 'mysql',
   logging: false, // Desactiva el logging de SQL en la consola
+  dialectOptions: {
+    connectTimeout: 60000,  // Timeout de 60 segundos
+  },
   pool: {
-    max: 5,           // Número máximo de conexiones
-    min: 0,           // Número mínimo de conexiones
-    acquire: 30000,   // Tiempo máximo para intentar conectarse (30s)
-    idle: 10000       // Tiempo antes de cerrar conexión inactiva (10s)
+    max: 5,
+    min: 0,
+    acquire: 60000,  // Tiempo máximo para intentar conectar
+    idle: 10000
   }
 });
 
