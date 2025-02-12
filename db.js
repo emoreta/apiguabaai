@@ -90,7 +90,7 @@ const Document = sequelize.define('Document', {
     allowNull: true
   }
 }, {
-  tableName: 'document',
+  tableName: 'Document',
   timestamps: false
 });
 
