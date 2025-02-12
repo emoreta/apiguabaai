@@ -1,10 +1,10 @@
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
-  host: 'guabastudio.com', // Cambia por tu IP o dominio
-  port: 3306,
-  user: 'guabastu_app',  // Usuario de MySQL
-  password: 'Procredit2017g' // Contraseña de MySQL
+  host: process.env.MYSQLHOST, // Cambia por tu IP o dominio
+  port: process.env.MYSQLPORT || 3306,
+  user: process.env.MYSQLUSER,  // Usuario de MySQL
+  password: process.env.MYSQLPASSWORD// Contraseña de MySQL
 });
 
 connection.connect((err) => {
