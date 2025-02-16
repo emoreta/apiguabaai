@@ -130,7 +130,7 @@ app.post('/add-document', authenticate, async (req, res) => {
     upload_date,
     created_date,
     isActive,
-    userId,url_json,json_text
+    userId,url_json,json_text,TypeDocumentId
   } = req.body;
 
   try {
