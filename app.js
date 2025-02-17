@@ -10,7 +10,7 @@ console.log(process.env.TOGETHER)
 // Variables de configuración
 const USERNAME = process.env.AUTH_USERNAME || '';
 const PASSWORD = process.env.AUTH_PASSWORD || '';
-const TOGETHER_API_KEY = process.env.TOGETHER|| '';
+const TOGETHER_API_KEY = process.env.TOGETHER || '';
 
 // Configura CORS para permitir el origen localhost:3000
 /*app.use(cors({
@@ -102,6 +102,73 @@ const extractInfoFromImageT = async (image64) => {
 };
 
 // Endpoint para procesar la imagen
+app.post('/callApiChatTogether', authenticate, async (req, res) => {
+  console.log('callApiChatTogether');
+  const { context, query } = req.body;
+  console.log('callApiChatTogether', context, query);
+  try {
+    const response = await fetch('https://api.together.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOGETHER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: "user",
+            content: "Tengo este JSON con información extraída de un PDF:\n " + context + " \n\nResponde la siguiente pregunta basándote únicamente en el contexto proporcionado: " + query
+          }],
+        stream: false
+      })
+    });
+    const jsonData = await response.json();
+    const extractedText = jsonData.choices[0]?.message?.content || '';
+    //return extractedText;
+    res.status(200).json({ "Answer": extractedText });
+  } catch (error) {
+    console.error('Error al responder:', error.message);
+    //throw error;
+    res.status(500).json({ error: 'Error al procesar .', details: error.message });
+  }
+});
+
+// Endpoint para procesar la imagen
+app.post('/callApiChatTogetherRag', authenticate, async (req, res) => {
+  const { context, query } = req.body;
+  console.log('callApiChatTogetherRag', query);
+  try {
+    const response = await fetch('https://api.together.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOGETHER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: "user",
+            content: query
+          }],
+        stream: false
+      })
+    });
+
+    const jsonData = await response.json();
+    
+    const extractedText = jsonData.choices[0]?.message?.content || '';
+    console.log(extractedText)
+    res.status(200).json({ "Answer": extractedText });
+  } catch (error) {
+    console.error('Error al responder:', error.message);
+    //throw error;
+    res.status(500).json({ error: 'Error al procesar .', details: error.message });
+  }
+});
+
+// Endpoint para procesar la imagen
 app.post('/extract-info', authenticate, async (req, res) => {
   const { imageUrl } = req.body;
 
@@ -130,7 +197,7 @@ app.post('/add-document', authenticate, async (req, res) => {
     upload_date,
     created_date,
     isActive,
-    userId,url_json,json_text,TypeDocumentId
+    userId, url_json, json_text, TypeDocumentId
   } = req.body;
 
   try {
@@ -145,7 +212,7 @@ app.post('/add-document', authenticate, async (req, res) => {
       upload_date,
       created_date,
       isActive: isActive ? 1 : 0,
-      userId,url_json
+      userId, url_json
     });
 
     // Ahora, llamamos a la API externa para guardar el JSON

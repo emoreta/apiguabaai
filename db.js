@@ -7,13 +7,6 @@ const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQLUSE
   port: process.env.MYSQLPORT || 3306,
   dialect: 'mysql',
   logging: false, // Desactiva el logging de SQL en la consola
-  dialectOptions: {
-    connectTimeout: 120000,
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
   pool: {
     max: 5,
     min: 0,
