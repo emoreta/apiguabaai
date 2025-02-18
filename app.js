@@ -216,7 +216,7 @@ app.post('/add-document', authenticate, async (req, res) => {
     });
 
     // Ahora, llamamos a la API externa para guardar el JSON
-    const response = await axios.post('https://upload.guabastudio.com/save-json', {
+    const response = await axios.post('https://upload.guabastudio.site/save-json', {
       jsonString: json_text,  // Aquí pasamos el json_text como parte del cuerpo
       fileName: name_json,    // Usamos el nombre del archivo JSON
       pathFile: 'json_files'  // El directorio de destino, por ejemplo
