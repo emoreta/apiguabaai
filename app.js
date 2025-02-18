@@ -118,7 +118,7 @@ app.post('/callApiChatTogether', authenticate, async (req, res) => {
         messages: [
           {
             role: "user",
-            content: "Tengo este JSON con información extraída de un PDF:\n " + context + " \n\nResponde la siguiente pregunta basándote únicamente en el contexto proporcionado: " + query
+            content: "Adjunto contexto:\n " + context + " \n\nResponde la siguiente pregunta basándote únicamente en el contexto proporcionado: " + query
           }],
         stream: false
       })
@@ -157,7 +157,7 @@ app.post('/callApiChatTogetherRag', authenticate, async (req, res) => {
     });
 
     const jsonData = await response.json();
-    
+
     const extractedText = jsonData.choices[0]?.message?.content || '';
     console.log(extractedText)
     res.status(200).json({ "Answer": extractedText });
@@ -240,6 +240,81 @@ app.post('/add-document', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Error al insertar el documento.', details: error.message });
   }
 });
+// Obtener todos los documentos
+app.get('/documents', authenticate, async (req, res) => {
+  try {
+    const documents = await Document.findAll();
+    res.json(documents);
+  } catch (error) {
+    console.error("Error al obtener documentos:", error);
+    res.status(500).json({ error: "Error al obtener documentos" });
+  }
+});
+
+// Obtener documento por ID
+app.get('/documents/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const document = await Document.findByPk(id);
+    if (!document) {
+      return res.status(404).json({ error: "Documento no encontrado" });
+    }
+    res.json(document);
+  } catch (error) {
+    console.error("Error al obtener documento:", error);
+    res.status(500).json({ error: "Error al obtener documento" });
+  }
+});
+// Endpoint para actualizar un documento por ID
+app.put('/documents/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    extension,
+    document_id,
+    author,
+    pages,
+    description,
+    name_json,
+    upload_date,
+    created_date,
+    isActive,
+    userId,
+    url_json,
+    TypeDocumentId
+  } = req.body;
+
+  try {
+    // Buscar el documento en la base de datos
+    const document = await Document.findByPk(id);
+    if (!document) {
+      return res.status(404).json({ error: "Documento no encontrado" });
+    }
+
+    // Actualizar el documento con los nuevos valores
+    await document.update({
+      name,
+      extension,
+      document_id,
+      author,
+      pages,
+      description,
+      name_json,
+      upload_date,
+      created_date,
+      isActive: isActive ? 1 : 0,
+      userId,
+      url_json,
+      TypeDocumentId
+    });
+
+    res.json({ message: "Documento actualizado correctamente", document });
+  } catch (error) {
+    console.error("Error al actualizar documento:", error);
+    res.status(500).json({ error: "Error al actualizar documento" });
+  }
+});
+
 //----------------------------------------------------------
 
 app.listen(port, () => {

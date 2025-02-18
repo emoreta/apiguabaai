@@ -81,6 +81,10 @@ const Document = sequelize.define('Document', {
   userId: {
     type: DataTypes.BIGINT,
     allowNull: true
+  },
+  TypeDocumentId: {
+    type: DataTypes.STRING(8000),
+    allowNull: true
   }
 }, {
   tableName: 'Document',
