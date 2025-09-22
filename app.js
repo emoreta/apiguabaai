@@ -66,7 +66,7 @@ const encodeImage = async (imageUrl) => {
 // Función para extraer información de la imagen usando Together-AI
 const extractInfoFromImageT = async (image64) => {
   try {
-    const response = await fetch('https://api.together.ai/v1/chat/completions', {
+    const response = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${TOGETHER_API_KEY}`,
