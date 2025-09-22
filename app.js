@@ -93,6 +93,7 @@ const extractInfoFromImageT = async (image64) => {
     });
 
     const jsonData = await response.json();
+    console.log(jsonData);
     const extractedText = jsonData.choices[0]?.message?.content || '';
     return extractedText;
   } catch (error) {
