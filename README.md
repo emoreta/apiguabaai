@@ -28,7 +28,10 @@ Guaba API conserva la autenticación de usuarios, el aislamiento por propietario
 ## Endpoints de producto
 
 - `POST /v1/ocr/extract`
+- `POST /v1/agent/plan`: selecciona herramientas autorizadas; no ejecuta operaciones ni recibe acceso directo a la base de datos.
 - `POST /v1/agent/respond`
+
+El flujo recomendado del agente es `plan -> ejecución segura en guaba-api -> respond`. Los resultados de herramientas se tratan como datos no confiables y la respuesta final incluye evidencias que el backend debe validar contra los identificadores realmente consultados.
 
 También se conservan temporalmente `/extract-info`, `/callApiChatTogether` y `/callApiChatTogetherRag` para migrar consumidores anteriores.
 

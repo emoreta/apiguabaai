@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const { sequelize, Document, AiModelConfig, AiProviderCredential, AiModelEvent, initializeDatabase } = require('./db');
 const { authenticateService, authenticateAdmin, rateLimit } = require('./security');
-const { CAPABILITIES, extractDocument, answerAgent, runWithFallback, encryptCredential, syncTogetherPricing } = require('./aiCore');
+const { CAPABILITIES, extractDocument, planAgentTools, answerAgent, runWithFallback, encryptCredential, syncTogetherPricing } = require('./aiCore');
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -115,6 +115,21 @@ service.post('/v1/agent/respond', async (req, res) => {
     res.json({ status: 'success', data: result });
   } catch (error) {
     res.status(/mensaje/i.test(error.message) ? 400 : 502).json({ status: 'error', error: error.message });
+  }
+});
+
+service.post('/v1/agent/plan', async (req, res) => {
+  try {
+    const result = await planAgentTools({
+      messages: req.body?.messages,
+      range: req.body?.range,
+      tools: req.body?.tools,
+      locale: req.body?.locale,
+      metadata: metadataFor(req),
+    });
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(/mensaje|herramienta|esquema|argumentos/i.test(error.message) ? 400 : 502).json({ status: 'error', error: error.message });
   }
 });
 
@@ -344,4 +359,3 @@ initializeDatabase()
   });
 
 module.exports = app;
-
