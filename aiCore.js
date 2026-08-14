@@ -362,7 +362,7 @@ const answerAgent = async ({ messages, context, locale = 'es-EC', metadata }) =>
       model,
       messages: [{ role: 'system', content: system }, ...safeMessages],
       temperature: Number(settings.temperature ?? 0.25),
-      max_tokens: Number(settings.maxTokens ?? 1800),
+      max_tokens: Number(settings.maxTokens ?? 1000),
       reasoning: { enabled: false },
       response_format: { type: 'json_schema', json_schema: { name: 'guaba_agent_answer', schema: agentSchema } },
       stream: false,
