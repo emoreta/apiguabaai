@@ -141,14 +141,26 @@ const usageAndCost = (usage, config) => {
 
 const listModels = async (capability, modelId) => {
   if (!CAPABILITIES.has(capability)) throw new Error('Capacidad de IA no válida');
-  return AiModelConfig.findAll({
+  const baseWhere = {
+    capability,
+    ...(modelId ? { id: modelId } : {}),
+    enabled: true,
+  };
+  const available = await AiModelConfig.findAll({
     where: {
-      capability,
-      ...(modelId ? { id: modelId } : {}),
-      enabled: true,
+      ...baseWhere,
       [Op.or]: [{ cooldown_until: null }, { cooldown_until: { [Op.lte]: new Date() } }],
     },
     order: [['priority', 'ASC'], ['id', 'ASC']],
+  });
+  if (available.length) return available;
+
+  // Si todos están temporalmente en cooldown, prueba uno de forma controlada.
+  // Así una falla transitoria no deja la capacidad completamente indisponible.
+  return AiModelConfig.findAll({
+    where: baseWhere,
+    order: [['failure_count', 'ASC'], ['cooldown_until', 'ASC'], ['priority', 'ASC'], ['id', 'ASC']],
+    limit: 1,
   });
 };
 

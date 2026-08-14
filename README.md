@@ -41,6 +41,8 @@ La selección de modelos se divide por responsabilidad:
 
 Cada fila puede definir `requestTimeoutMs` en `settings`. Al superar ese tiempo, el intento se registra como fallo, entra temporalmente en cooldown y la solicitud continúa con el siguiente modelo activo por prioridad.
 
+Si todos los modelos de una capacidad coinciden temporalmente en cooldown, el servicio realiza una prueba controlada con el modelo de menor conteo de fallos. Esto evita responder que no existen modelos activos cuando en realidad hay modelos configurados atravesando una recuperación transitoria.
+
 También se conservan temporalmente `/extract-info`, `/callApiChatTogether` y `/callApiChatTogetherRag` para migrar consumidores anteriores.
 
 ## Endpoints administrativos
