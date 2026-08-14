@@ -5,7 +5,7 @@ Servicio transversal de IA desplegable en Railway. Los clientes finales no deben
 ## Capacidades actuales
 
 - OCR estructurado para facturas, recibos, documentos y carteles.
-- Agente financiero de solo lectura con respuesta estructurada.
+- Agente financiero de solo lectura con planificador y respuesta estructurada independientes.
 - Selección de modelos por capacidad, prioridad, health y fallback.
 - Cambio, activación y prueba de modelos sin reiniciar el servicio.
 - BYOK por organización: claves de Together cifradas con AES-256-GCM.
@@ -32,6 +32,14 @@ Guaba API conserva la autenticación de usuarios, el aislamiento por propietario
 - `POST /v1/agent/respond`
 
 El flujo recomendado del agente es `plan -> ejecución segura en guaba-api -> respond`. Los resultados de herramientas se tratan como datos no confiables y la respuesta final incluye evidencias que el backend debe validar contra los identificadores realmente consultados.
+
+La selección de modelos se divide por responsabilidad:
+
+- `ocr`: modelo visual y fallback propios.
+- `agent_planner`: `openai/gpt-oss-20b`, con `Qwen/Qwen3.5-9B` como fallback.
+- `agent_response`: `openai/gpt-oss-120b`, con `Qwen/Qwen3.5-9B` como fallback.
+
+Cada fila puede definir `requestTimeoutMs` en `settings`. Al superar ese tiempo, el intento se registra como fallo, entra temporalmente en cooldown y la solicitud continúa con el siguiente modelo activo por prioridad.
 
 También se conservan temporalmente `/extract-info`, `/callApiChatTogether` y `/callApiChatTogetherRag` para migrar consumidores anteriores.
 

@@ -248,6 +248,42 @@ admin.post('/models/:id/test', async (req, res) => {
       const result = await extractDocument(req.body.imageUrl, { clientId: 'admin-test', tenantId: req.body?.tenantId, channel: 'admin' }, row.id);
       return res.json({ status: 'success', data: { requestedModel: row.model, selectedModel: result.model, latencyMs: Date.now() - startedAt, usage: result.usage, document: result.document } });
     }
+    if (row.capability === 'agent_planner') {
+      const result = await planAgentTools({
+        messages: [{ role: 'user', content: '¿Cuánto gasté este mes?' }],
+        range: { from: '2026-08-01', to: '2026-08-31' },
+        tools: [{
+          type: 'function',
+          function: {
+            name: 'get_financial_summary',
+            description: 'Obtiene el resumen financiero de un rango de fechas.',
+            parameters: {
+              type: 'object', additionalProperties: false,
+              properties: { from: { type: 'string' }, to: { type: 'string' } },
+              required: ['from', 'to'],
+            },
+          },
+        }],
+        metadata: { clientId: 'admin-test', channel: 'admin' },
+        modelId: row.id,
+      });
+      return res.json({ status: 'success', data: { requestedModel: row.model, selectedModel: result.model, latencyMs: Date.now() - startedAt, usage: result.usage, toolCalls: result.toolCalls } });
+    }
+    if (row.capability === 'agent_response') {
+      const result = await answerAgent({
+        messages: [{ role: 'user', content: 'Resume mi situación financiera.' }],
+        context: {
+          toolResults: [{
+            tool: 'get_financial_summary',
+            data: { income: 1000, expenses: 350, balance: 650, currency: 'USD', transactionCount: 4 },
+            references: [{ type: 'period', id: 'admin-test', label: 'Agosto 2026', value: 350, currency: 'USD', date: '2026-08-31', description: 'Gastos del periodo' }],
+          }],
+        },
+        metadata: { clientId: 'admin-test', channel: 'admin' },
+        modelId: row.id,
+      });
+      return res.json({ status: 'success', data: { requestedModel: row.model, selectedModel: result.model, latencyMs: Date.now() - startedAt, usage: result.usage, response: result.response } });
+    }
     const result = await runWithFallback({
       capability: row.capability,
       modelId: row.id,

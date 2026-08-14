@@ -122,8 +122,30 @@ const seedModels = async () => {
   const seeds = [
     { capability: 'ocr', model: configuredModel('MODEL_VISION1', 'moonshotai/Kimi-K2.6'), priority: 10 },
     { capability: 'ocr', model: configuredModel('MODEL_VISION_FALLBACK', 'google/gemma-4-31B-it'), priority: 20 },
-    { capability: 'agent', model: configuredModel('MODEL_AGENT', 'zai-org/GLM-5.2'), priority: 10 },
-    { capability: 'agent', model: configuredModel('MODEL_AGENT_FALLBACK', 'moonshotai/Kimi-K2.6'), priority: 20 },
+    {
+      capability: 'agent_planner',
+      model: configuredModel('MODEL_AGENT_PLANNER', 'openai/gpt-oss-20b'),
+      priority: 10,
+      settings: { plannerTemperature: 0, plannerMaxTokens: 350, requestTimeoutMs: 12000 },
+    },
+    {
+      capability: 'agent_planner',
+      model: configuredModel('MODEL_AGENT_PLANNER_FALLBACK', 'Qwen/Qwen3.5-9B'),
+      priority: 20,
+      settings: { plannerTemperature: 0, plannerMaxTokens: 350, requestTimeoutMs: 12000 },
+    },
+    {
+      capability: 'agent_response',
+      model: configuredModel('MODEL_AGENT_RESPONSE', 'openai/gpt-oss-120b'),
+      priority: 10,
+      settings: { temperature: 0.2, maxTokens: 800, requestTimeoutMs: 12000 },
+    },
+    {
+      capability: 'agent_response',
+      model: configuredModel('MODEL_AGENT_RESPONSE_FALLBACK', 'Qwen/Qwen3.5-9B'),
+      priority: 20,
+      settings: { temperature: 0.2, maxTokens: 800, requestTimeoutMs: 12000 },
+    },
   ];
   for (const seed of seeds) {
     await AiModelConfig.findOrCreate({
@@ -131,6 +153,8 @@ const seedModels = async () => {
       defaults: seed,
     });
   }
+  // Conserva el historial de FinOps, pero retira la capacidad anterior que mezclaba ambas etapas.
+  await AiModelConfig.update({ enabled: false }, { where: { capability: 'agent' } });
 };
 
 const initializeDatabase = async () => {
