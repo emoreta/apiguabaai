@@ -178,7 +178,7 @@ const syncTogetherPricing = async () => {
   return { catalogModels: catalog.length, updated };
 };
 
-const runWithFallback = async ({ capability, modelId, requestId = crypto.randomUUID(), metadata, buildPayload }) => {
+const runWithFallback = async ({ capability, modelId, requestId = crypto.randomUUID(), metadata, buildPayload, validateResult }) => {
   const models = await listModels(capability, modelId);
   if (!models.length) throw new Error(`No hay modelos activos para ${capability}`);
   const providerCredential = await resolveProviderCredential(metadata);
@@ -188,6 +188,7 @@ const runWithFallback = async ({ capability, modelId, requestId = crypto.randomU
     try {
       const settings = normalizeSettings(config.settings);
       const result = await togetherCompletion(buildPayload(config.model, settings), providerCredential.apiKey);
+      const validated = validateResult ? validateResult(result) : undefined;
       const financialUsage = usageAndCost(result.usage, config);
       const billing = {
         credential_id: providerCredential.credential?.id || null,
@@ -199,7 +200,7 @@ const runWithFallback = async ({ capability, modelId, requestId = crypto.randomU
         providerCredential.credential?.update({ last_used_at: new Date() }),
         AiModelEvent.create({ request_id: requestId, capability, provider: config.provider, model: config.model, ...normalizeMetadata(metadata), ...billing, status: 'success', latency_ms: Date.now() - startedAt, ...financialUsage }),
       ]);
-      return { ...result, model: config.model, requestId };
+      return { ...result, validated, model: config.model, requestId };
     } catch (error) {
       const credentialFailure = [401, 403].includes(Number(error.status));
       const nextFailureCount = Number(config.failure_count || 0) + (credentialFailure ? 0 : 1);
@@ -261,10 +262,12 @@ const extractDocument = async (imageInput, metadata, modelId) => {
       response_format: { type: 'json_schema', json_schema: { name: 'guaba_document', schema: ocrSchema } },
       stream: false,
     }),
+    validateResult: result => {
+      try { return JSON.parse(result.message.content); }
+      catch { throw new Error('El modelo devolvió un documento con formato inválido'); }
+    },
   });
-  let document;
-  try { document = JSON.parse(result.message.content); } catch { throw new Error('El modelo devolvió un documento con formato inválido'); }
-  return { document, model: result.model, requestId: result.requestId, usage: result.usage };
+  return { document: result.validated, model: result.model, requestId: result.requestId, usage: result.usage };
 };
 
 const answerAgent = async ({ messages, context, locale = 'es-EC', metadata }) => {
@@ -286,10 +289,18 @@ const answerAgent = async ({ messages, context, locale = 'es-EC', metadata }) =>
       response_format: { type: 'json_schema', json_schema: { name: 'guaba_agent_answer', schema: agentSchema } },
       stream: false,
     }),
+    validateResult: result => {
+      let parsed;
+      try { parsed = JSON.parse(result.message.content); }
+      catch { throw new Error('El agente devolvió una respuesta con formato inválido'); }
+      const answer = String(parsed?.answer || '').trim();
+      if (answer.length < 12 || !/[\p{L}\p{N}]/u.test(answer)) {
+        throw new Error('El agente devolvió una respuesta vacía o insuficiente');
+      }
+      return parsed;
+    },
   });
-  let response;
-  try { response = JSON.parse(result.message.content); } catch { throw new Error('El agente devolvió una respuesta con formato inválido'); }
-  return { response, model: result.model, requestId: result.requestId, usage: result.usage };
+  return { response: result.validated, model: result.model, requestId: result.requestId, usage: result.usage };
 };
 
 module.exports = { CAPABILITIES, extractDocument, answerAgent, runWithFallback, togetherCompletion, encryptCredential, syncTogetherPricing };

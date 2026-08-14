@@ -44,6 +44,21 @@ Requieren firma HMAC y `X-Admin-Key`.
 - `GET /v1/admin/usage/summary`
 - `GET /v1/admin/usage/events`
 
+## Clave de Together por cliente (BYOK)
+
+`TOGETHER` es la credencial de plataforma y funciona solamente como respaldo. Para registrar la clave propia de un cliente se usa `POST /v1/admin/credentials` con firma HMAC, `X-Admin-Key` y este cuerpo:
+
+```json
+{
+  "tenantId": "id-del-cliente",
+  "provider": "together",
+  "label": "Together principal",
+  "apiKey": "clave-del-cliente"
+}
+```
+
+El servicio cifra la clave con `AI_CREDENTIALS_MASTER_KEY`; las consultas administrativas solo muestran sus cuatro últimos caracteres. `guaba-api` envía el mismo `tenantId` en cada solicitud, por lo que la selección es automática: primero BYOK y, si no existe una credencial activa, la clave de plataforma. La rotación se realiza mediante `POST /v1/admin/credentials/:id/rotate` sin reiniciar el servicio.
+
 La lista completa de variables está en `.env.example`.
 
 ## Despliegue seguro
