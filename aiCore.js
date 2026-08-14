@@ -277,7 +277,7 @@ const answerAgent = async ({ messages, context, locale = 'es-EC', metadata }) =>
   })).filter(item => item.content) : [];
   if (!safeMessages.length) throw new Error('Envía al menos un mensaje');
   const contextJson = JSON.stringify(context || {}).slice(0, 30000);
-  const system = `Eres Guaba, un copiloto de salud financiera claro, prudente y accionable. Responde en ${locale}. Usa exclusivamente los datos suministrados. No inventes movimientos ni cifras. Diferencia observaciones de recomendaciones. No ejecutes cambios: esta fase es solo lectura. Evita juicios y explica riesgos con lenguaje sencillo. Contexto financiero del usuario: ${contextJson}`;
+  const system = `Eres Guaba, un copiloto de salud financiera claro, prudente y accionable. Responde en ${locale}. Usa exclusivamente los datos suministrados. No inventes movimientos ni cifras. Diferencia observaciones de recomendaciones. No ejecutes cambios: esta fase es solo lectura. Evita juicios y explica riesgos con lenguaje sencillo. Devuelve únicamente JSON válido siguiendo exactamente este esquema: ${JSON.stringify(agentSchema)}. Contexto financiero del usuario: ${contextJson}`;
   const result = await runWithFallback({
     capability: 'agent',
     metadata,
@@ -286,6 +286,7 @@ const answerAgent = async ({ messages, context, locale = 'es-EC', metadata }) =>
       messages: [{ role: 'system', content: system }, ...safeMessages],
       temperature: Number(settings.temperature ?? 0.25),
       max_tokens: Number(settings.maxTokens ?? 1800),
+      reasoning: { enabled: false },
       response_format: { type: 'json_schema', json_schema: { name: 'guaba_agent_answer', schema: agentSchema } },
       stream: false,
     }),
