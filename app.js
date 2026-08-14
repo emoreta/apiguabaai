@@ -114,6 +114,7 @@ service.post('/v1/agent/respond', async (req, res) => {
     });
     res.json({ status: 'success', data: result });
   } catch (error) {
+    console.error('[agent-respond]', error.message, error.details || []);
     res.status(/mensaje/i.test(error.message) ? 400 : 502).json({ status: 'error', error: error.message });
   }
 });
@@ -129,6 +130,7 @@ service.post('/v1/agent/plan', async (req, res) => {
     });
     res.json({ status: 'success', data: result });
   } catch (error) {
+    console.error('[agent-plan]', error.message, error.details || []);
     res.status(/mensaje|herramienta|esquema|argumentos/i.test(error.message) ? 400 : 502).json({ status: 'error', error: error.message });
   }
 });

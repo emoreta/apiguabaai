@@ -146,6 +146,12 @@ const seedModels = async () => {
       priority: 20,
       settings: { temperature: 0.2, maxTokens: 800, requestTimeoutMs: 12000 },
     },
+    {
+      capability: 'agent_response',
+      model: configuredModel('MODEL_AGENT_RESPONSE_LAST_RESORT', 'openai/gpt-oss-20b'),
+      priority: 30,
+      settings: { temperature: 0.15, maxTokens: 700, requestTimeoutMs: 10000 },
+    },
   ];
   for (const seed of seeds) {
     await AiModelConfig.findOrCreate({

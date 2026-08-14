@@ -37,7 +37,7 @@ La selección de modelos se divide por responsabilidad:
 
 - `ocr`: modelo visual y fallback propios.
 - `agent_planner`: `openai/gpt-oss-20b`, con `Qwen/Qwen3.5-9B` como fallback.
-- `agent_response`: `openai/gpt-oss-120b`, con `Qwen/Qwen3.5-9B` como fallback.
+- `agent_response`: `openai/gpt-oss-120b`, con `Qwen/Qwen3.5-9B` como fallback y `openai/gpt-oss-20b` como último recurso.
 
 Cada fila puede definir `requestTimeoutMs` en `settings`. Al superar ese tiempo, el intento se registra como fallo, entra temporalmente en cooldown y la solicitud continúa con el siguiente modelo activo por prioridad.
 
